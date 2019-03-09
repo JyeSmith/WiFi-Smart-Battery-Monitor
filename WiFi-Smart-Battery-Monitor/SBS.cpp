@@ -65,6 +65,7 @@ short SBS::sbsReadInt(uint8_t command) {
     Wire.requestFrom(0x0B, 2, true);
     b1 = Wire.read();
     b2 = Wire.read();
+    Wire.endTransmission();
     return b1 | (b2 << 8);
   }
   return 0;

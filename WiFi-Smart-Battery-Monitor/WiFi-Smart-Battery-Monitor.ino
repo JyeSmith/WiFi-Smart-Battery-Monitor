@@ -22,7 +22,6 @@ void setup() {
   Serial.begin(115200);
       
   Wire.begin();
-  Wire.setClock(40000);
             
   // Connect to Wi-Fi network with SSID and password
   Serial.println("Setting Access Point...");
@@ -63,11 +62,16 @@ void loop(){
             client.println("<link rel=\"icon\" href=\"data:,\">");
 
               // Body
+//              for (uint8_t i = 0; i < numOfBatteries; i++) {
+//                client.println("<h1>Battery " + String(i+1) + "/" + String(numOfBatteries) + "</h1>");
+//                Wire.begin(sdaArray[i % sclNumOfWires], sclArray[i / sclNumOfWires], 10000);
+//                printBatteryRegisters(client, battery);
+//                client.println("<p></p>");
+//              }
               for (uint8_t i = 0; i < numOfBatteries; i++) {
-                client.println("<h1>Battery " + String(i+1) + "/" + String(numOfBatteries) + "</h1>");
-                Wire.begin(sdaArray[i % sclNumOfWires], sclArray[i / sclNumOfWires]);
-                printBatteryRegisters(client, battery);
-                client.println("<p></p>");
+                Wire.begin(sdaArray[i % sclNumOfWires], sclArray[i / sclNumOfWires], 10000);
+                printBatterySummary(client, battery);
+                client.println("<br>");
               }
 
             client.println("</body></html>");

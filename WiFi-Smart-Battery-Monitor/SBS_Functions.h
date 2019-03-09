@@ -1,6 +1,39 @@
 
 #include "SBS.h" // this library should be in Arduino\libraries\SBS
 
+//  //              Slave Function        Address,Writable?, byte count
+//  commands[8]  = {"Temperature",            0x08, false, 2, "0.1K"};
+//  commands[9]  = {"Voltage",                0x09, false, 2, "mV"};
+//  commands[11] = {"AverageCurrent",         0x0b, false, 2, "mA"};
+//  commands[34] = {"VoltageCellFour",        0x3c, false, 1, "mV"};
+//  commands[35] = {"VoltageCellThree",       0x3d, false, 1, "mV"};
+//  commands[36] = {"VoltageCellTwo",         0x3e, false, 1, "mV"};
+//  commands[37] = {"VoltageCellOne",         0x3f, false, 1, "mV"};
+//  commands[13] = {"RelativeStateOfCharge",  0x0d, false, 2, "percent"};
+  
+void printBatterySummary(WiFiClient client, SBS battery) {
+
+  int readItems[] = {9, 37, 36, 35, 11, 13, 8};
+  for(int j = 0; j < 7; j++) {
+    int i = readItems[j];
+    if(battery.commands[i].type == "mV") { // divide by 1000 for Volts
+      client.print((float)battery.sbsReadInt(battery.commands[i].code) / 1000, 2);
+    }
+    else if(battery.commands[i].type == "percent") { // divide by 100 for decimal
+      client.print((int)battery.sbsReadInt(battery.commands[i].code));
+      client.print("%");
+    }
+    else if(battery.commands[i].type == "0.1K") { // only used for temperature register
+      client.print((float)battery.sbsReadInt(battery.commands[i].code) / 10 - 273.15, 0);
+      client.print("C");
+    }
+    else if(battery.commands[i].type == "mA") { // divide by 1000 for Amps
+      client.print((int)battery.sbsReadInt(battery.commands[i].code));
+      client.print("mA");
+    }    
+    client.print(", ");
+  }  
+}
 void printBatteryRegisters(WiFiClient client, SBS battery) {
   // print over serial the data for each register we know about, handeling each register based on type.
   for(int i = 1; i < 38; i++) {
